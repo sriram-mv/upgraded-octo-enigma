@@ -10,7 +10,6 @@ Commands:
 from __future__ import annotations
 
 import asyncio
-import os
 
 import click
 
@@ -25,7 +24,8 @@ def cli() -> None:
 @cli.command()
 @click.option("--username", envvar="FIDELITY_USERNAME", prompt="Fidelity username")
 @click.option("--password", envvar="FIDELITY_PASSWORD", prompt="Fidelity password", hide_input=True)
-@click.option("--totp-secret", envvar="FIDELITY_TOTP_SECRET", default=None, help="TOTP secret for automated 2FA")
+@click.option("--totp-secret", envvar="FIDELITY_TOTP_SECRET", default=None,
+              help="TOTP secret for automated 2FA")
 def login(username: str, password: str, totp_secret: str | None) -> None:
     """Log in to Fidelity and save the session for MCP use."""
     session = FidelitySession()

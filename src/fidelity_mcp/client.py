@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 from datetime import date
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -43,7 +43,7 @@ class FidelityClient:
     def __init__(self, session: FidelitySession) -> None:
         self._session = session
 
-    def _get(self, url: str, params: Optional[dict[str, Any]] = None) -> Any:
+    def _get(self, url: str, params: dict[str, Any] | None = None) -> Any:
         with self._session.http_client() as client:
             r = client.get(url, params=params)
         self._raise_for_status(r)
@@ -76,7 +76,9 @@ class FidelityClient:
             today = raw.get("today", {})
             balance_data = raw.get("balance", today)
             balance = AccountBalance(
-                total_account_value=_f(balance_data.get("currentBalance") or balance_data.get("totalAccountValue", 0)),
+                total_account_value=_f(
+                    balance_data.get("currentBalance") or balance_data.get("totalAccountValue", 0)
+                ),
                 today_gain_loss=_f(today.get("todayDollarChange", 0)),
                 today_gain_loss_pct=_f(today.get("todayPercentChange", 0)),
                 available_to_trade=_f(balance_data.get("availableToTrade")),
@@ -112,7 +114,9 @@ class FidelityClient:
                     cost_basis_per_share=_f(raw.get("costBasisPerShare")),
                     cost_basis_total=_f(raw.get("costBasisTotal")),
                     total_gain_loss=_f(raw.get("unrealizedGainLoss", raw.get("totalGainLoss"))),
-                    total_gain_loss_pct=_f(raw.get("unrealizedGainLossPct", raw.get("totalGainLossPct"))),
+                    total_gain_loss_pct=_f(
+                        raw.get("unrealizedGainLossPct", raw.get("totalGainLossPct"))
+                    ),
                     today_gain_loss=_f(raw.get("todayGainLoss")),
                     asset_class=raw.get("assetClass"),
                 )
@@ -126,8 +130,8 @@ class FidelityClient:
     def get_transactions(
         self,
         account_number: str,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
         max_results: int = 100,
     ) -> list[Transaction]:
         params: dict[str, Any] = {"count": max_results}
@@ -188,7 +192,7 @@ class FidelityClient:
         action: str,
         quantity: float,
         order_type: str = "MARKET",
-        limit_price: Optional[float] = None,
+        limit_price: float | None = None,
         duration: str = "DAY",
     ) -> OrderPreview:
         """Preview a trade without executing it."""
@@ -207,7 +211,9 @@ class FidelityClient:
             duration=duration.upper(),
             estimated_value=_f(preview.get("estimatedOrderValue", 0)),
             estimated_commission=_f(preview.get("estimatedCommission", 0)),
-            estimated_total=_f(preview.get("estimatedTotalCost", preview.get("estimatedOrderValue", 0))),
+            estimated_total=_f(
+                preview.get("estimatedTotalCost", preview.get("estimatedOrderValue", 0))
+            ),
             warnings=[w.get("message", str(w)) for w in preview.get("warnings", [])],
         )
 
@@ -218,7 +224,7 @@ class FidelityClient:
         action: str,
         quantity: float,
         order_type: str = "MARKET",
-        limit_price: Optional[float] = None,
+        limit_price: float | None = None,
         duration: str = "DAY",
     ) -> OrderResult:
         """Submit an order. Always call preview_trade first."""
@@ -244,7 +250,7 @@ class FidelityClient:
         action: str,
         quantity: float,
         order_type: str,
-        limit_price: Optional[float],
+        limit_price: float | None,
         duration: str,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -260,7 +266,7 @@ class FidelityClient:
         return payload
 
 
-def _f(value: Any) -> Optional[float]:
+def _f(value: Any) -> float | None:
     """Safely convert a value to float, returning None if not convertible."""
     if value is None:
         return None

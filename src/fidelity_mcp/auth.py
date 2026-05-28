@@ -16,7 +16,6 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 import httpx
 
@@ -94,7 +93,7 @@ class FidelitySession:
         self,
         username: str,
         password: str,
-        totp_secret: Optional[str] = None,
+        totp_secret: str | None = None,
     ) -> None:
         """Open a headed browser, log in to Fidelity, and save the session.
 
@@ -120,12 +119,14 @@ class FidelitySession:
             )
 
             # Username step
-            await page.locator('[data-testid="userId-input"], input[name="userId-input"], #userId-input').first.fill(username)
+            user_sel = '[data-testid="userId-input"], input[name="userId-input"], #userId-input'
+            await page.locator(user_sel).first.fill(username)
             await page.locator('[data-testid="btn-login"], #fs-login-button').first.click()
             await page.wait_for_timeout(1500)
 
             # Password step
-            await page.locator('[data-testid="password"], input[name="password"], #password').first.fill(password)
+            pwd_sel = '[data-testid="password"], input[name="password"], #password'
+            await page.locator(pwd_sel).first.fill(password)
             await page.locator('[data-testid="btn-login"], #fs-login-button').first.click()
             await page.wait_for_timeout(2000)
 

@@ -14,7 +14,6 @@ from __future__ import annotations
 import json
 import logging
 from datetime import date
-from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -33,7 +32,7 @@ mcp = FastMCP(
 )
 
 # Lazy-initialized singleton client
-_client: Optional[FidelityClient] = None
+_client: FidelityClient | None = None
 
 
 def _get_client() -> FidelityClient:
@@ -85,8 +84,8 @@ def get_positions(account_number: str) -> str:
 @mcp.tool()
 def get_transactions(
     account_number: str,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
     max_results: int = 50,
 ) -> str:
     """Get transaction history for a Fidelity account.
@@ -144,7 +143,7 @@ def preview_trade(
     action: str,
     quantity: float,
     order_type: str = "MARKET",
-    limit_price: Optional[float] = None,
+    limit_price: float | None = None,
     duration: str = "DAY",
 ) -> str:
     """Preview a trade to see estimated cost, commission, and any warnings.
@@ -183,7 +182,7 @@ def place_trade(
     action: str,
     quantity: float,
     order_type: str = "MARKET",
-    limit_price: Optional[float] = None,
+    limit_price: float | None = None,
     duration: str = "DAY",
     confirm: bool = False,
 ) -> str:
